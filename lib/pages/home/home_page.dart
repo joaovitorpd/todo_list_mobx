@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:todo_list_mobx/pages/home/components/item_widget.dart';
+import 'package:todo_list_mobx/pages/home/home_controller.dart';
+import 'package:todo_list_mobx/pages/home/models/item_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,47 +12,74 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final controller = HomeController();
+
+  _dialog() {
+    var model = ItemModel();
+
+    showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text('Adicionar Item'),
+            content: TextField(
+              onChanged: model.setTitle,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Novo Item',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  controller.addItem(model);
+                  Navigator.pop(context);
+                },
+                child: const Text('Salvar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancelar'),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    _dialog() {
-      showDialog(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: const Text('Adicionar Item'),
-              content: TextField(
-                onChanged: (value) {},
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Novo Item',
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Salvar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancelar'),
-                ),
-              ],
-            );
-          });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const TextField(
           decoration: InputDecoration(hintText: "Pesquisa..."),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Observer(
+              builder: (_) {
+                return Text("${controller.totalChecked}");
+              },
+            ),
+          ),
+        ],
       ),
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (_, index) {
-          return const ItemWidget();
+      body: Observer(
+        builder: (_) {
+          return ListView.builder(
+            itemCount: controller.listItems.length,
+            itemBuilder: (_, index) {
+              var item = controller.listItems[index];
+              return ItemWidget(
+                item: item,
+                removeClicked: () {
+                  controller.removeItem(item);
+                },
+              );
+            },
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(
