@@ -52,8 +52,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const TextField(
-          decoration: InputDecoration(hintText: "Pesquisa..."),
+        title: TextField(
+          onChanged: controller.setFilter,
+          decoration: const InputDecoration(hintText: "Pesquisa..."),
         ),
         actions: [
           IconButton(
@@ -69,9 +70,9 @@ class _HomePageState extends State<HomePage> {
       body: Observer(
         builder: (_) {
           return ListView.builder(
-            itemCount: controller.listItems.length,
+            itemCount: controller.listFiltered.length,
             itemBuilder: (_, index) {
-              var item = controller.listItems[index];
+              var item = controller.listFiltered[index];
               return ItemWidget(
                 item: item,
                 removeClicked: () {
